@@ -20,16 +20,17 @@ fn open(filename: &str) -> MyResult<Box<dyn BufRead>> {
 }
 
 pub fn run(config: Config) -> MyResult<()> {
+    let mut last_line = 0;
     for filename in config.files {
         match open(&filename) {
             Err(err) => eprintln!("Failed to open {}: {}", filename, err),
             Ok(file) => {
-                let mut last_line = 0;
-                for (line_num, line) in file.lines().enumerate() {
+                for line in file.lines() {
                     let line = line?;
 
                     if config.number_lines {
-                        println!("{:>6}\t{}", line_num + 1, line);
+                        last_line += 1;
+                        println!("{:>6}\t{}", last_line, line);
                     } else if config.number_nonblank_lines {
                         if !line.is_empty() {
                             last_line += 1;
